@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package io.droidme.commons.logging;
 
 import java.lang.reflect.Method;
@@ -16,10 +11,6 @@ import org.slf4j.Logger;
 /**
  *
  * @author droidme
- * 
- * for using the annotation @Traceable please have in mind that you have
- * to configure this interceptor in the beans.xml of the web application 
- * who is using this interceptor binding. 
  */
 
 @Traceable @Interceptor

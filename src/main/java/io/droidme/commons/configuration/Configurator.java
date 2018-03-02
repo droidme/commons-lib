@@ -1,17 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package io.droidme.commons.configuration;
 
-import io.droidme.commons.logging.Traceable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.AnnotatedField;
 import javax.enterprise.inject.spi.InjectionPoint;
@@ -24,7 +19,7 @@ import org.slf4j.Logger;
  */
 public class Configurator {
 
-    Properties configuration;
+    private Properties configuration;
 
     @Inject
     Logger log;
@@ -32,9 +27,17 @@ public class Configurator {
     @Inject
     Stage stage;
 
+    @Inject
+    private Instance<ConfigurationProvider> configurationProvider;
+
     @PostConstruct
-    public void loadDefaults() {
-        configuration = new Properties();
+    private void init() {
+        configuration = defaults();
+        configuration.putAll(custom());
+    }
+
+    public Properties defaults() {
+        Properties props = new Properties();
         List<String> configFiles = Arrays.asList(
                 "system.config",
                 "stage/" + stage.name().toLowerCase() + ".config");
@@ -43,13 +46,24 @@ public class Configurator {
                     .getResourceAsStream(file);
             if (inputStream != null) {
                 try {
-                    configuration.load(inputStream);
+                    log.debug("loading file: {}", file);
+                    props.load(inputStream);
                 } catch (IOException ex) {
                     log.error("Error loading {}", file, ex);
                 }
             }
 
         });
+        return props;
+    }
+
+    public Properties custom() {
+        Properties props = new Properties();
+        configurationProvider
+                .forEach(provider -> {
+                    props.putAll(provider.getConfiuration());
+                });
+        return props;
     }
 
     @Produces
@@ -69,6 +83,15 @@ public class Configurator {
             return 0;
         }
         return Integer.parseInt(value);
+    }
+
+    @Produces
+    public boolean getBoolean(InjectionPoint ip) {
+        String value = getString(ip);
+        if (value == null) {
+            return false;
+        }
+        return Boolean.parseBoolean(value);
     }
 
     String obtainConfigurable(InjectionPoint ip) {
