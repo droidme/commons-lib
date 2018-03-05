@@ -32,11 +32,11 @@ public class Configurator {
 
     @PostConstruct
     private void init() {
-        configuration = defaults();
-        configuration.putAll(custom());
+        configuration = loadDefaults();
+        mergeCustomConfiguration();
     }
 
-    public Properties defaults() {
+    public Properties loadDefaults() {
         Properties props = new Properties();
         List<String> configFiles = Arrays.asList(
                 "system.config",
@@ -57,13 +57,11 @@ public class Configurator {
         return props;
     }
 
-    public Properties custom() {
-        Properties props = new Properties();
+    void mergeCustomConfiguration() {
         configurationProvider
                 .forEach(provider -> {
-                    props.putAll(provider.getConfiuration());
+                    configuration.putAll(provider.getConfiuration());
                 });
-        return props;
     }
 
     @Produces
