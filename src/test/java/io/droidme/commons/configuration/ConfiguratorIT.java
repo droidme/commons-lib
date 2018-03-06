@@ -1,19 +1,17 @@
 package io.droidme.commons.configuration;
 
 import io.droidme.commons.logging.LogProducer;
-import javax.enterprise.inject.Instance;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.inject.Inject;
-import static org.hamcrest.CoreMatchers.is;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,14 +35,12 @@ public class ConfiguratorIT {
     @Inject
     @Configurable("some_port")
     private int port;
-    
-    @Inject
-    private Instance<String> dynamicMessage;
 
     @Deployment
-    public static WebArchive createTestArchive() {
-        return ShrinkWrap
-                .create(WebArchive.class, "configurator.war")
+    public static WebArchive createDeployment() {
+        Path stagePath = Paths.get("stage");
+        WebArchive webArchive = ShrinkWrap
+                .create(WebArchive.class)
                 .addClasses(
                         LogProducer.class,
                         Configurable.class,
@@ -52,7 +48,14 @@ public class ConfiguratorIT {
                         Configurator.class,
                         Stage.class,
                         StageProducer.class)
-                .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
+                .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
+                .addAsResource("system.config")
+                .addAsResource("stage/local.config")
+                .addAsResource("stage/development.config")
+                .addAsResource("stage/test.config");
+        
+        System.out.println("WebArchive: " + webArchive.toString(true));
+        return webArchive;
     }
 
     @Test
@@ -78,24 +81,5 @@ public class ConfiguratorIT {
         if (stage.is(Stage.TEST)) {
             assertEquals(port, 300);
         }
-        if (stage.is(Stage.PRELIVE)) {
-            assertEquals(port, 400);
-        }
-        if (stage.is(Stage.PRODUCTION)) {
-            assertEquals(port, 500);
-        }
     }
-    
-/*
-    @Test
-    public void dynamicReconfigure() {
-        String message = dynamicMessage.get();
-        assertNotNull(message);
-        assertThat(message, is("DYNAMIC"));
-        
-        // just reconfigure
-        String expected = "reconfigured";
-    }
-*/
-    
 }
