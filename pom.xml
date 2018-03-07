@@ -85,7 +85,7 @@
     </dependencies>
     <profiles>
         <profile>
-            <id>chameleon-jboss-managed</id>
+            <id>jboss-managed</id>
             <dependencies>
                 <dependency>
                     <groupId>org.arquillian.container</groupId>
@@ -96,7 +96,7 @@
             </dependencies>
         </profile>
         <profile>
-            <id>glassfish-embedded-3.1</id>
+            <id>glassfish-embedded</id>
             <dependencies>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>

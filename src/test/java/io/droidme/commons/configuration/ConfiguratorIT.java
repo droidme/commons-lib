@@ -38,9 +38,7 @@ public class ConfiguratorIT {
 
     @Deployment
     public static WebArchive createDeployment() {
-        Path stagePath = Paths.get("stage");
-        WebArchive webArchive = ShrinkWrap
-                .create(WebArchive.class)
+        return ShrinkWrap.create(WebArchive.class)
                 .addClasses(
                         LogProducer.class,
                         Configurable.class,
@@ -53,9 +51,6 @@ public class ConfiguratorIT {
                 .addAsResource("stage/local.config")
                 .addAsResource("stage/development.config")
                 .addAsResource("stage/test.config");
-        
-        System.out.println("WebArchive: " + webArchive.toString(true));
-        return webArchive;
     }
 
     @Test
