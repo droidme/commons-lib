@@ -7,6 +7,7 @@ package io.droidme.commons.configuration;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import static org.hamcrest.CoreMatchers.is;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -23,8 +24,6 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class StageIT {
 
-    public static final String STAGE_KEY = "stage";
-
     @Inject
     Instance<Stage> stage;
 
@@ -36,13 +35,29 @@ public class StageIT {
     }
 
     @Test
-    public void testStage() {
-        // set stage environment to development
-        System.setProperty(STAGE_KEY, "development");
-        assertEquals(Stage.DEVELOPMENT, stage.get());
-        // set stage environment to test
-        System.setProperty(STAGE_KEY, "test");
-        assertEquals(Stage.TEST, stage.get());
+    public void defaultStage() {
+        System.clearProperty(StageProducer.STAGE_KEY);
+        Stage current = stage.get();
+        Stage expected = Stage.valueOf(StageProducer.DEFAULT_STAGE);
+        assertThat(current, is(expected));
     }
+    
+    @Test
+    public void testDevStage() {
+        System.setProperty(StageProducer.STAGE_KEY, Stage.DEVELOPMENT.name());
+        Stage current = stage.get();
+        Stage expected = Stage.DEVELOPMENT;
+        assertThat(current, is(expected));
+    }
+    
+    @Test
+    public void testTestStage() {
+        System.setProperty(StageProducer.STAGE_KEY, Stage.TEST.name());
+        Stage current = stage.get();
+        Stage expected = Stage.TEST;
+        assertThat(current, is(expected));
+    }
+    
+    
 
 }
