@@ -9,7 +9,7 @@ import javax.enterprise.inject.Produces;
 public class StageProducer {
 
     public static final String STAGE_KEY = "stage";
-    private static final String DEFAULT_STAGE = Stage.LOCAL.name();
+    public static final String DEFAULT_STAGE = Stage.LOCAL.name();
 
     @Produces
     public Stage produce() {
