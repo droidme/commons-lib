@@ -1,8 +1,6 @@
 package io.droidme.commons.configuration;
 
 import io.droidme.commons.logging.LogProducer;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import javax.inject.Inject;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
