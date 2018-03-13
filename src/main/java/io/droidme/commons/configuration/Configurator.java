@@ -87,6 +87,11 @@ public class Configurator {
         String value = configuration.getProperty(key);
         if (value == null) {
             log.warn("Key {} not properly configured.", key);
+        } else {
+            Encrypted encrypted = obtainEncryptedAnnotation(ip);
+            if (encrypted != null) {
+                //todo: encrypt the value
+            }
         }
         return value;
     }
@@ -123,22 +128,27 @@ public class Configurator {
             return clazzName + "." + memberName;
         }
     }
-    
+
+    Encrypted obtainEncryptedAnnotation(InjectionPoint ip) {
+        AnnotatedField field = (AnnotatedField) ip.getAnnotated();
+        return field.getAnnotation(Encrypted.class);
+    }
+
     @GET
     public String getConfiguration() {
         return this.configuration.toString();
     }
-    
+
     @GET
     @Path("{key}")
     public String getEntry(@PathParam("key") String key) {
         return configuration.getProperty(key);
     }
-    
+
     @PUT
     @Path("{key}")
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response addEntry(@PathParam("key") String key, String value, 
+    public Response addEntry(@PathParam("key") String key, String value,
             @Context UriInfo uriInfo) {
         if (configuration.containsKey(key)) {
             return Response.noContent().build();
@@ -148,7 +158,7 @@ public class Configurator {
             return Response.created(uri).build();
         }
     }
-    
+
     @DELETE
     @Path("{key}")
     public Response deleteEntry(@PathParam("key") String key) {
