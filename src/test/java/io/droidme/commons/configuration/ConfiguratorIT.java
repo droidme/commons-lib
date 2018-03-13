@@ -1,5 +1,6 @@
 package io.droidme.commons.configuration;
 
+import io.droidme.commons.crypt.Encrypted;
 import io.droidme.commons.logging.LogProducer;
 import io.droidme.commons.logging.Traceable;
 import io.droidme.commons.logging.TracingInterceptor;

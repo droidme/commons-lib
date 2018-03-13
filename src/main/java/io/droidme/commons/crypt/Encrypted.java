@@ -1,4 +1,4 @@
-package io.droidme.commons.configuration;
+package io.droidme.commons.crypt;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

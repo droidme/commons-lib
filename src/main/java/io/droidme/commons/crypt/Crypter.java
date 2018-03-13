@@ -19,25 +19,35 @@ import javax.ejb.Singleton;
 @Singleton
 public class Crypter {
     
-    public static final String CIPHER = "AES/ECB/PKCS5PADDING";
-    public static final String KEY = "n43RbHusT/uHwC5rFYrOIA==";
+    private static final String CIPHER = "AES/ECB/PKCS5PADDING";
+    private static final String KEY = "n43RbHusT/uHwC5rFYrOIA==";
     
-    public Cipher cipher;
+    SecretKey secret;
+    Cipher cipher;
     
     @PostConstruct
-    private void init() throws NoSuchAlgorithmException, 
-            NoSuchPaddingException {
-        cipher = Cipher.getInstance(Crypter.CIPHER);
+    void init() throws NoSuchAlgorithmException, NoSuchPaddingException {
+        this.cipher = Cipher
+                .getInstance(Crypter.CIPHER);
+        byte[] decodedKey = Base64.getDecoder()
+                .decode(Crypter.KEY);
+        this.secret = new SecretKeySpec(
+                decodedKey, 0, decodedKey.length, "AES");
     }
     
-    public byte[] encrypt(String text) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public String encrypt(String text) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] bytes = text.getBytes();
-        byte[] decodedKey = Base64.getDecoder().decode(Crypter.KEY);
-        SecretKey secretKey = new SecretKeySpec(
-                decodedKey, 0, decodedKey.length, "AES");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        cipher.init(Cipher.ENCRYPT_MODE, this.secret);
         byte[] bytesEncrypted = cipher.doFinal(bytes);
-        return bytesEncrypted;
+        return Base64.getEncoder()
+                .encodeToString(bytesEncrypted);
+    }
+    
+    public String decrypt(String text) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        byte[] bytes = Base64.getDecoder().decode(text);
+        cipher.init(Cipher.DECRYPT_MODE, this.secret);
+        byte[] bytesDecrypted = cipher.doFinal(bytes);
+        return new String(bytesDecrypted);
     }
     
 }

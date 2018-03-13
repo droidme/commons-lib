@@ -1,11 +1,17 @@
 package io.droidme.commons.configuration;
 
+import io.droidme.commons.crypt.Crypter;
+import io.droidme.commons.crypt.Encrypted;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 import javax.annotation.PostConstruct;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import javax.ejb.Singleton;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
@@ -31,6 +37,9 @@ public class Configurator {
 
     @Inject
     private Instance<ConfigurationProvider> configurationProvider;
+
+    @Inject
+    private Crypter crypter;
 
     @PostConstruct
     private void init() {
@@ -67,7 +76,7 @@ public class Configurator {
                 });
         return props;
     }
-    
+
     public Properties getConfiguration() {
         return configuration;
     }
@@ -81,7 +90,13 @@ public class Configurator {
         } else {
             Encrypted encrypted = obtainEncryptedAnnotation(ip);
             if (encrypted != null) {
-                
+                try {
+                    value = crypter.decrypt(value);
+                } catch (InvalidKeyException
+                        | IllegalBlockSizeException
+                        | BadPaddingException ex) {
+                    log.error("Error decrypt congigured value {}, {}", value, ex);
+                }
             }
         }
         return value;
