@@ -41,7 +41,7 @@ public class StageIT {
         Stage expected = Stage.valueOf(StageProducer.DEFAULT_STAGE);
         assertThat(current, is(expected));
     }
-    
+
     @Test
     public void testDevStage() {
         System.setProperty(StageProducer.STAGE_KEY, Stage.DEVELOPMENT.name());
@@ -49,7 +49,7 @@ public class StageIT {
         Stage expected = Stage.DEVELOPMENT;
         assertThat(current, is(expected));
     }
-    
+
     @Test
     public void testTestStage() {
         System.setProperty(StageProducer.STAGE_KEY, Stage.TEST.name());
@@ -57,7 +57,5 @@ public class StageIT {
         Stage expected = Stage.TEST;
         assertThat(current, is(expected));
     }
-    
-    
 
 }
