@@ -36,7 +36,7 @@ public class CrypterTest {
                 .encodeToString(key.getEncoded());
         assertNotNull(key);
     }
-    
+
     @Test
     public void encrypt() throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         String encrypt = cut.encrypt("password");
@@ -49,7 +49,5 @@ public class CrypterTest {
         String decrypted = cut.decrypt(encrypted);
         assertThat(decrypted, is("password"));
     }
-    
-    
 
 }

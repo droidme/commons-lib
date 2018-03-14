@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package io.droidme.commons.configuration;
 
 import javax.enterprise.inject.Instance;
@@ -30,7 +25,7 @@ public class StageIT {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(Stage.class, StageProducer.class)
+                .addPackages(true, "io.droidme.commons")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 

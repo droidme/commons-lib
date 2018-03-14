@@ -11,6 +11,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.ejb.Singleton;
+import javax.inject.Inject;
+import org.slf4j.Logger;
 
 /**
  *
@@ -22,20 +24,29 @@ public class Crypter {
     private static final String CIPHER = "AES/ECB/PKCS5PADDING";
     private static final String KEY = "n43RbHusT/uHwC5rFYrOIA==";
     
+    @Inject
+    Logger log;
+    
     SecretKey secret;
     Cipher cipher;
     
     @PostConstruct
-    void init() throws NoSuchAlgorithmException, NoSuchPaddingException {
-        this.cipher = Cipher
-                .getInstance(Crypter.CIPHER);
-        byte[] decodedKey = Base64.getDecoder()
+    void init() {
+        try {
+            this.cipher = Cipher
+                    .getInstance(Crypter.CIPHER);
+            byte[] decodedKey = Base64.getDecoder()
                 .decode(Crypter.KEY);
-        this.secret = new SecretKeySpec(
+            this.secret = new SecretKeySpec(
                 decodedKey, 0, decodedKey.length, "AES");
+            
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
+            log.error("cannot initialize crypter singleton: {}", ex);
+        }
     }
     
-    public String encrypt(String text) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public String encrypt(String text) 
+            throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] bytes = text.getBytes();
         cipher.init(Cipher.ENCRYPT_MODE, this.secret);
         byte[] bytesEncrypted = cipher.doFinal(bytes);
@@ -43,7 +54,8 @@ public class Crypter {
                 .encodeToString(bytesEncrypted);
     }
     
-    public String decrypt(String text) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public String decrypt(String text) 
+            throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] bytes = Base64.getDecoder().decode(text);
         cipher.init(Cipher.DECRYPT_MODE, this.secret);
         byte[] bytesDecrypted = cipher.doFinal(bytes);
